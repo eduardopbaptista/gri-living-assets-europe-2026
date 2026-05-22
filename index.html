@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRI Living Assets Europe 2026 — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#fff;--bg2:#f5f5f3;--bg3:#eeede9;--text:#1a1a18;--text2:#6b6b67;--text3:#9b9b97;--border:rgba(0,0,0,.1);--border2:rgba(0,0,0,.18);--green:#1D9E75;--gbg:#E1F5EE;--gtxt:#0F6E56;--amber:#EF9F27;--abg:#FAEEDA;--atxt:#854F0B;--red:#E24B4A;--rbg:#FCEBEB;--rtxt:#A32D2D;--blue:#185FA5;--bbg:#E6F1FB;--btxt:#185FA5;--r:8px;--rl:12px}
+body{font-family:'DM Sans',sans-serif;background:#eeedea;color:var(--text);font-size:14px;line-height:1.6;padding:28px 16px 64px}
+.page{max-width:960px;margin:0 auto;background:var(--bg);border-radius:16px;border:.5px solid var(--border2);overflow:hidden}
+.header{padding:28px 36px 20px;border-bottom:.5px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px}
+.header h1{font-size:21px;font-weight:600;letter-spacing:-.3px}
+.badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:999px;background:var(--bbg);color:var(--btxt)}
+.cd-banner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 36px;background:#FFF8ED;border-bottom:.5px solid #F5C26B;flex-wrap:wrap}
+.cd-left{display:flex;flex-direction:column;gap:3px}
+.cd-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:#92651A}
+.cd-row{display:flex;align-items:baseline;gap:7px}
+.cd-days-val{font-size:24px;font-weight:700;color:#B45309;line-height:1}
+.cd-days-label{font-size:13px;font-weight:500;color:#7A4F00}
+.cd-sep{font-size:13px;color:#B87830;opacity:.5}
+.cd-date{font-size:13px;color:#92651A}
+.cd-progress{flex:1;min-width:200px;max-width:340px}
+.cd-track-labels{display:flex;justify-content:space-between;font-size:10px;color:#92651A;margin-bottom:4px;opacity:.75}
+.cd-track{height:5px;background:rgba(245,194,107,.3);border-radius:3px;overflow:hidden}
+.cd-fill{height:100%;background:#F59E0B;border-radius:3px}
+.tabs{display:flex;border-bottom:.5px solid var(--border);background:var(--bg2);overflow-x:auto}
+.tab{padding:12px 22px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.tab:hover{color:var(--text2)}.tab.active{color:var(--text);border-bottom-color:var(--text)}
+.tab-content{display:none}.tab-content.active{display:block}
+.filters{display:flex;gap:12px;flex-wrap:wrap;align-items:center;padding:12px 36px;background:var(--bg2);border-bottom:.5px solid var(--border)}
+.filters label{font-size:12px;color:var(--text2);font-weight:500}
+select{font-family:'DM Sans',sans-serif;font-size:12px;padding:5px 10px;border:.5px solid var(--border2);border-radius:var(--r);background:var(--bg);color:var(--text);cursor:pointer;outline:none}
+.count{margin-left:auto;font-size:11px;color:var(--text3)}
+.body{padding:20px 28px 32px}
+.sh{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);padding:0 8px 6px;margin-top:24px;margin-bottom:8px;border-bottom:.5px solid var(--border)}
+.sh:first-child{margin-top:0}
+.scard{border:.5px solid var(--border);border-left-width:3px;border-radius:var(--rl);margin-bottom:10px;overflow:hidden}
+.scard.on-track{border-left-color:var(--green)}.scard.at-risk{border-left-color:var(--amber)}.scard.behind,.scard.no-data{border-left-color:var(--red)}.scard.no-target{border-left-color:var(--border2)}
+.stop{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start;padding:12px 16px 10px;cursor:pointer;user-select:none}.stop:hover{background:var(--bg2)}
+.stitle{font-size:13px;font-weight:500;line-height:1.4}
+.spills{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+.pill{font-size:10px;font-weight:500;padding:2px 8px;border-radius:999px}
+.pc{background:var(--gbg);color:var(--gtxt)}.pt{background:var(--abg);color:var(--atxt)}.pn{background:var(--bg3);color:var(--text3)}
+.sright{display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:110px}
+.stotal{font-size:20px;font-weight:600}
+.stag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:999px}
+.stag.on-track{background:var(--gbg);color:var(--gtxt)}.stag.at-risk{background:var(--abg);color:var(--atxt)}.stag.behind,.stag.no-data{background:var(--rbg);color:var(--rtxt)}.stag.no-target{background:var(--bg3);color:var(--text3)}
+.stgt{font-size:11px;color:var(--text3)}.sbar{height:3px;width:100%;background:var(--bg3);border-radius:2px;overflow:hidden;margin-top:2px}.sbarfill{height:100%;border-radius:2px}
+.chevron{font-size:12px;color:var(--text3);margin-top:2px;transition:transform .2s}.chevron.open{transform:rotate(180deg)}
+.icp-section{border-top:.5px solid var(--border);padding:14px 16px 16px;background:var(--bg2);display:none}.icp-section.open{display:block}
+.icp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.icp-col h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px}
+.pr{display:flex;align-items:flex-start;gap:8px;margin-bottom:7px}
+.pdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.pdot.matched{background:var(--green)}.pdot.missing{background:var(--red)}.pdot.partial{background:var(--amber)}
+.pinfo{flex:1}.ptitle{font-size:12px;font-weight:500;color:var(--text);line-height:1.3}.pdetail{font-size:11px;color:var(--text2);margin-top:1px}
+.pperson{font-size:11px;color:var(--gtxt);background:var(--gbg);padding:1px 7px;border-radius:999px;margin-top:3px;display:inline-block}
+.icp-legend{display:flex;gap:12px;margin-bottom:12px}.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}.ldot{width:8px;height:8px;border-radius:50%}
+.icpnote{font-size:11px;color:var(--text2);margin-top:10px;padding-top:10px;border-top:.5px solid var(--border);font-style:italic}
+.wl-section{border-top:.5px solid var(--border);padding:12px 16px 14px;background:#fafaf8}
+.wl-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.wl-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3)}
+.wl-total{font-size:13px;font-weight:600;color:var(--text);background:var(--bg3);padding:1px 10px;border-radius:999px}
+.wl-total.low{background:var(--rbg);color:var(--rtxt)}.wl-none{font-size:11px;color:var(--text3);font-style:italic}
+.hero{padding:32px 36px 24px;border-bottom:.5px solid var(--border)}
+.hero-eyebrow{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-weight:500;margin-bottom:8px}
+.hero-title{font-size:24px;font-weight:600;letter-spacing:-.3px;margin-bottom:10px}
+.hero-sub{display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--text2);margin-bottom:16px}
+.hero-links{display:flex;gap:8px;flex-wrap:wrap}
+.quick-link{font-size:12px;font-weight:500;padding:6px 14px;border-radius:999px;border:.5px solid var(--border2);background:var(--bg2);color:var(--text2);text-decoration:none;transition:all .15s}
+.quick-link:hover{background:var(--bg3);color:var(--text)}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:24px 36px;border-bottom:.5px solid var(--border)}
+.kpi{background:var(--bg2);border-radius:var(--rl);padding:16px 18px}
+.kpi-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.kpi-val{font-size:28px;font-weight:600;line-height:1;margin-bottom:6px}.kpi-val span{font-size:14px;color:var(--text3);font-weight:400}
+.prog-bar-wrap{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin:6px 0}
+.prog-bar{height:100%;background:var(--green);border-radius:2px}
+.kpi-sub{display:flex;justify-content:space-between;font-size:11px;color:var(--text3)}
+.tag-pill{padding:1px 8px;border-radius:999px;font-size:10px;font-weight:600}
+.section{padding:24px 36px;border-bottom:.5px solid var(--border)}.sec-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:14px}
+.dl-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.dl-card{background:var(--bg2);border-radius:var(--r);padding:14px;border-left:3px solid var(--border2)}
+.dl-card.urgent{border-left-color:var(--red)}.dl-card.warn{border-left-color:var(--amber)}
+.dl-date{font-size:22px;font-weight:700;line-height:1;color:var(--text)}.dl-month{font-size:11px;color:var(--text3);margin-bottom:6px}.dl-desc{font-size:11px;color:var(--text2);line-height:1.4}
+.dl-badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:999px;margin-top:6px;display:inline-block}
+.badge-urgent{background:var(--rbg);color:var(--rtxt)}.badge-warn{background:var(--abg);color:var(--atxt)}.badge-ok{background:var(--gbg);color:var(--gtxt)}
+.dept-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.dept-card{background:var(--bg2);border-radius:var(--rl);padding:16px}
+.dept-name{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text3);margin-bottom:8px}
+.dept-val{font-size:24px;font-weight:600;line-height:1;margin-bottom:6px}
+.dept-prog{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden;margin:6px 0}.dept-prog-fill{height:100%;background:var(--green);border-radius:2px}
+.dept-bottom{display:flex;justify-content:space-between;font-size:11px;color:var(--text3)}
+.perf-wrap{padding:28px 36px 36px}
+.perf-block h2{font-size:15px;font-weight:600;margin-bottom:3px}
+.sr-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid var(--border)}.sr-row:last-child{border-bottom:none}
+.sr-rank{font-size:11px;font-weight:700;color:var(--text3);width:18px;text-align:center;flex-shrink:0}
+.sr-main{flex:1;min-width:0}.sr-name-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap}
+.sr-name{font-size:13px;font-weight:500;color:var(--text);flex-shrink:0}.sr-badges{display:flex;gap:4px;flex-wrap:wrap}
+.sr-badge{font-size:10px;font-weight:600;padding:1px 7px;border-radius:999px}
+.sr-conf{background:var(--gbg);color:var(--gtxt)}.sr-tent{background:var(--abg);color:var(--atxt)}.sr-wl{background:var(--bbg);color:var(--btxt)}.sr-dec{background:var(--rbg);color:var(--rtxt)}
+.sr-bar-track{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;display:flex}
+.sr-bar-conf{height:100%;background:#1D9E75;border-radius:3px 0 0 3px}.sr-bar-tent{height:100%;background:#EF9F27}
+.comp-wrap{padding:28px 36px 36px}.comp-wrap h2{font-size:15px;font-weight:600;margin-bottom:20px}
+.comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.comp-col h3{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding-bottom:8px;border-bottom:.5px solid var(--border);margin-bottom:10px}
+.comp-col h3.in{color:var(--green)}.comp-col h3.out{color:var(--rtxt)}
+.crow{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:.5px solid var(--border);font-size:12px}.crow:last-child{border-bottom:none}
+.cdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}.cdot.in{background:var(--green)}.cdot.out{background:var(--red)}
+.cname{flex:1;color:var(--text)}.cperson{font-size:10px;color:var(--gtxt);background:var(--gbg);padding:1px 6px;border-radius:999px}
+.cmember{font-size:10px;padding:1px 6px;border-radius:999px}.cmember.yes{color:var(--btxt);background:var(--bbg)}.cmember.no{color:var(--rtxt);background:var(--rbg)}
+.wl-chart-wrap{padding:28px 36px 36px}.wl-chart-wrap h2{font-size:15px;font-weight:600;margin-bottom:0}
+.wl-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;margin-top:8px}.wl-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}.wl-leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.wl-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;padding:10px 0 0}
+.wl-sum-pill{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--bg2);border:.5px solid var(--border)}
+.wl-sum-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}.wl-sum-count{font-weight:700;color:var(--text)}.wl-sum-label{color:var(--text2)}
+.footer{padding:14px 36px;border-top:.5px solid var(--border);background:var(--bg2);font-size:11px;color:var(--text3);display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="header">
+  <div><h1>🏙️ GRI Living Assets Europe 2026</h1></div>
+  <span class="badge">24–25 Jun 2026 · London</span>
+</div>
+
+<div class="cd-banner">
+  <div class="cd-left">
+    <span class="cd-label">⏳ Confirmed Programme Deadline</span>
+    <div class="cd-row">
+      <span class="cd-days-val" id="cd-days">—</span>
+      <span class="cd-days-label">days remaining</span>
+      <span class="cd-sep">·</span>
+      <span class="cd-date">April 24, 2026</span>
+    </div>
+  </div>
+  <div class="cd-progress">
+    <div class="cd-track-labels"><span>Kickoff</span><span>24 Apr</span></div>
+    <div class="cd-track"><div class="cd-fill" id="cd-fill" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('main',this)">Main Data</div>
+  <div class="tab" onclick="switchTab('icp',this)">ICP Analysis</div>
+  <div class="tab" onclick="switchTab('chart',this)">Program Confirmation</div>
+  <div class="tab" onclick="switchTab('accounts',this)">Key Accounts</div>
+  <div class="tab" onclick="switchTab('perf',this)">Performance</div>
+  <div class="tab" onclick="switchTab('wl',this)">Wishlist</div>
+</div>
+
+<!-- MAIN DATA -->
+<div class="tab-content active" id="tab-main">
+  <div class="hero">
+    <div class="hero-eyebrow">GRI Institute · Living Assets Europe 2026</div>
+    <div class="hero-title">🏙️ GRI Living Assets Europe 2026</div>
+    <div class="hero-sub">
+      <span>📍 Conrad London St. James, London</span>
+      <span>📅 24–25 June 2026</span>
+      <span>🎯 168 participants</span>
+    </div>
+    <div class="hero-links">
+      <a class="quick-link" href="https://www.griinstitute.org/realestate/event/gri-living-assets-europe-2026_5248" target="_blank">🌐 Event Website</a>
+      <a class="quick-link" href="https://www.notion.so/griclub/Living-Assets-EU-2026-Briefing-2b091d4f92d98024b022dbe50f1fafa0" target="_blank">📋 Event Briefing</a>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-label">Total co-chairs allocated</div>
+      <div class="kpi-val">53 <span>/ 58</span></div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:93%"></div></div>
+      <div class="kpi-sub"><span>48 confirmed · 5 tentative</span><span class="tag-pill" style="background:#E1F5EE;color:#0F6E56">93%</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Wishlist players</div>
+      <div class="kpi-val">— <span>/ target TBD</span></div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:0%"></div></div>
+      <div class="kpi-sub"><span>Upload WL report to see data</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Declined</div>
+      <div class="kpi-val">67</div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:100%;background:#e8c5b0"></div></div>
+      <div class="kpi-sub"><span>From Salesforce report</span></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sec-label">Upcoming deadlines</div>
+    <div class="dl-row">
+      <div class="dl-card urgent">
+        <div class="dl-date">20</div><div class="dl-month">Mar 2026</div>
+        <div class="dl-desc">Deadline to clean Tier 1</div>
+        <div class="dl-badge badge-urgent">⚠ Past due</div>
+      </div>
+      <div class="dl-card urgent">
+        <div class="dl-date">17</div><div class="dl-month">Apr 2026</div>
+        <div class="dl-desc">Tentative Programme Deadline</div>
+        <div class="dl-badge badge-urgent" id="dl-tent-badge">Checking...</div>
+      </div>
+      <div class="dl-card warn">
+        <div class="dl-date">24</div><div class="dl-month">Apr 2026</div>
+        <div class="dl-desc">Confirmed Programme Deadline</div>
+        <div class="dl-badge badge-warn" id="dl-conf-badge">Checking...</div>
+      </div>
+      <div class="dl-card">
+        <div class="dl-date">25</div><div class="dl-month">Jun 2026</div>
+        <div class="dl-desc">Conference Day</div>
+        <div class="dl-badge badge-ok">Event day</div>
+      </div>
+    </div>
+  </div>
+  <div class="section" style="border-bottom:none">
+    <div class="sec-label">Co-chair targets by department</div>
+    <div class="dept-wrap">
+      <div class="dept-card">
+        <div class="dept-name">CSM</div>
+        <div class="dept-val">— <span style="font-size:13px;color:#bbb">/ 35</span></div>
+        <div class="dept-prog"><div class="dept-prog-fill" style="width:0%"></div></div>
+        <div class="dept-bottom"><span>Upload report to update</span><span>WL: —</span></div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-name">Production</div>
+        <div class="dept-val">— <span style="font-size:13px;color:#bbb">/ 4</span></div>
+        <div class="dept-prog"><div class="dept-prog-fill" style="width:0%"></div></div>
+        <div class="dept-bottom"><span>Upload report to update</span><span>WL: —</span></div>
+      </div>
+      <div class="dept-card">
+        <div class="dept-name">Commercial</div>
+        <div class="dept-val">— <span style="font-size:13px;color:#bbb">/ 19</span></div>
+        <div class="dept-prog"><div class="dept-prog-fill" style="width:0%"></div></div>
+        <div class="dept-bottom"><span>Upload report to update</span><span>WL: —</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ICP ANALYSIS -->
+<div class="tab-content" id="tab-icp">
+  <div class="filters">
+    <div style="display:flex;align-items:center;gap:6px">
+      <label>Stream</label>
+      <select id="f-stream" onchange="render()"><option value="">All</option></select>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <label>ICP Status</label>
+      <select id="f-icp" onchange="render()">
+        <option value="">All</option>
+        <option value="gap">Has ICP gaps</option>
+        <option value="ok">ICP well covered</option>
+      </select>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <label>Target Status</label>
+      <select id="f-status" onchange="render()">
+        <option value="">All</option>
+        <option value="on-track">Target met</option>
+        <option value="at-risk">Partial</option>
+      </select>
+    </div>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="body" id="body"></div>
+</div>
+
+<!-- PROGRAM CONFIRMATION -->
+<div class="tab-content" id="tab-chart">
+  <div style="padding:28px 36px 36px">
+    <h2 style="font-size:15px;font-weight:600;margin-bottom:16px">Program Confirmation — Sessions vs. Target</h2>
+    <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:10px;height:10px;border-radius:2px;background:#1D9E75"></div>Confirmed</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:10px;height:10px;border-radius:2px;background:#EF9F27"></div>Tentative</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2)"><div style="width:18px;height:2px;background:#E24B4A;margin:4px 0"></div>Target</div>
+    </div>
+    <div style="position:relative;width:100%;height:440px">
+      <canvas id="pgChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- KEY ACCOUNTS -->
+<div class="tab-content" id="tab-accounts">
+  <div class="comp-wrap">
+    <h2>Key Accounts — GRI Living Assets Europe 2026</h2>
+    <div class="comp-grid" id="comp-grid"></div>
+  </div>
+</div>
+
+<!-- PERFORMANCE -->
+<div class="tab-content" id="tab-perf">
+  <div class="perf-wrap">
+    <div style="margin-bottom:32px">
+      <h2 style="font-size:15px;font-weight:600;margin-bottom:16px">Co-chairs by Country</h2>
+      <div style="position:relative;width:100%;height:380px" id="countryChartWrap">
+        <canvas id="countryChart"></canvas>
+      </div>
+    </div>
+    <div>
+      <h2 style="font-size:15px;font-weight:600;margin-bottom:16px">Staff Contribution to the Programme — Ranking</h2>
+      <div id="staff-ranking"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WISHLIST -->
+<div class="tab-content" id="tab-wl">
+  <div class="wl-chart-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:4px">
+      <h2>Wishlist — Pipeline by Session</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <label style="font-size:12px;color:var(--text2);font-weight:500">Owner</label>
+        <select id="wl-owner-filter" onchange="onWLOwnerChange()"><option value="">All owners</option></select>
+      </div>
+    </div>
+    <div class="wl-summary" id="wl-summary"></div>
+    <div class="wl-legend" id="wl-legend"></div>
+    <div style="position:relative;width:100%;" id="wlChartWrap">
+      <canvas id="wlChart"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>GRI Institute · GRI Living Assets Europe 2026</span>
+  <span id="footer-date"></span>
+</div>
+</div>
+<script>
+/*%%SESSIONS_START%%*/const SESSIONS = [{"stream":"Openings","title":"Living Investment Strategies - The Great Core Rotation?","producer":"Victor Tranquilini","type":"Guest","target":4,"wl_target":20,"icp":["CIO","CEO","Head of Living Europe","Head of Value-Add RE"],"allocated":[{"name":"Mark Allnutt","company":"Greystar","jobTitle":"Executive Director Europe Investment Management","matchedIcp":"Head of Living / Investment Europe","fit":"match","status":"Confirmed"},{"name":"Michael Pegler","company":"Kennedy Wilson","jobTitle":"President, Europe","matchedIcp":"President / CEO Europe","fit":"match","status":"Confirmed"},{"name":"Ronen Ribak","company":"DWS","jobTitle":"Head of Value-Add, Real Estate Europe","matchedIcp":"Head of Value-Add RE Europe","fit":"match","status":"Confirmed"},{"name":"Tom Livelli","company":"EQT Real Estate","jobTitle":"Partner and Head of Living Strategies, Europe","matchedIcp":"Head of Living Strategies Europe","fit":"match","status":"Confirmed"}],"notes":"4/4 — all ICPs covered. Greystar, Kennedy Wilson, DWS, EQT. Strong opening panel.","confirmed":4,"tentative":0,"wl":0},{"stream":"Openings","title":"The Great Recalibration - Institutional Capital Appetite Across UK & European Living Markets","producer":"Victor Tranquilini","type":"Guest","target":4,"wl_target":20,"icp":["CIO","CEO","Head of UK RE","Head of Capital Markets"],"allocated":[{"name":"Kiran Raichura","company":"Unknown","jobTitle":"—","matchedIcp":"Capital Markets / CIO","fit":"partial","status":"Confirmed"},{"name":"John German","company":"Unknown","jobTitle":"—","matchedIcp":"Unknown","fit":"partial","status":"Confirmed"}],"notes":"4 confirmed. ICP detail limited — needs Salesforce data update.","confirmed":4,"tentative":0,"wl":0},{"stream":"BTR","title":"BTR Deep-Dive - Real Pan-European Opportunity or Local Fragmentation?","producer":"Victor Tranquilini","type":"Retention","target":6,"wl_target":20,"icp":["CIO","Head of BTR Europe","Partner","CEO","Senior Managing Director"],"allocated":[{"name":"Dan Lutterodt","company":"re:shape","jobTitle":"Partner and Head of Investment","matchedIcp":"Partner / Head of Investment","fit":"match","status":"Confirmed"},{"name":"John Dunkerley","company":"Apache Capital Partners","jobTitle":"Founder Partner & CEO","matchedIcp":"CEO / Founder","fit":"match","status":"Confirmed"},{"name":"Joseph De Leo","company":"PineBridge Benson Elliot","jobTitle":"Senior Partner","matchedIcp":"Partner","fit":"match","status":"Confirmed"},{"name":"Paul Oberschneider","company":"Hilltop Credit Partners","jobTitle":"Founder & CEO","matchedIcp":"CEO / Founder","fit":"match","status":"Confirmed"},{"name":"Rob Fairfax","company":"Barings Real Estate","jobTitle":"Director, European RE Private Equity","matchedIcp":"Director European RE PE","fit":"partial","status":"Confirmed"},{"name":"Stan Kubacek","company":"Heimstaden","jobTitle":"Senior Managing Director","matchedIcp":"Senior Managing Director","fit":"match","status":"Confirmed"}],"notes":"7/6 — target exceeded. Full ICP coverage across investor, operator, developer, credit.","confirmed":7,"tentative":0,"wl":0},{"stream":"Value-Add","title":"Value-add, Repurposing & Retrofits - Value Creation Engine or CapEx Trap?","producer":"Victor Tranquilini","type":"Retention","target":5,"wl_target":18,"icp":["CEO","CIO","Partner","Managing Director","Head of RE"],"allocated":[{"name":"Federico Bianchi","company":"Ho Bee Land","jobTitle":"CEO","matchedIcp":"CEO","fit":"match","status":"Confirmed"},{"name":"Jill Xiaozhou Ju","company":"True North Management","jobTitle":"Founder / CEO","matchedIcp":"CEO","fit":"match","status":"Confirmed"},{"name":"Olivier Astruc","company":"EQT Real Estate","jobTitle":"Managing Director","matchedIcp":"MD","fit":"match","status":"Confirmed"},{"name":"Paul Nearchou","company":"DFI","jobTitle":"Partner","matchedIcp":"Partner","fit":"match","status":"Tentative"}],"notes":"4/5 — one slot remaining. Missing a CIO-level institutional fund profile.","confirmed":3,"tentative":1,"wl":0},{"stream":"Countries","title":"Germany Living - From Core Safety to Precision Value Creation?","producer":"Victor Tranquilini","type":"Retention","target":4,"wl_target":22,"icp":["Country Head Germany","Head of Investment Germany","CEO Germany","CIO"],"allocated":[{"name":"Lars Meisinger","company":"Periskop Partners AG","jobTitle":"CEO","matchedIcp":"CEO Germany platform","fit":"match","status":"Confirmed"},{"name":"Lisa Strohbücker","company":"Heimstaden","jobTitle":"Head of Investment, Germany","matchedIcp":"Head of Investment Germany","fit":"match","status":"Confirmed"},{"name":"Marco Zarges","company":"ZAR Real Estate Holding","jobTitle":"Founder","matchedIcp":"Founder / developer","fit":"partial","status":"Confirmed"},{"name":"Patrick Pfeiffer","company":"4 MORE Capital Partners","jobTitle":"Managing Director","matchedIcp":"MD / local fund","fit":"partial","status":"Tentative"}],"notes":"5/4 — target exceeded (3c+2t). Ioanna Paschalidou (Henderson Park) as moderator.","confirmed":3,"tentative":2,"wl":0},{"stream":"PBSA","title":"PBSA Deals - Europe's Star Play, How Much Growth Remains?","producer":"Victor Tranquilini","type":"Expansion","target":6,"wl_target":30,"icp":["CIO","Global Head of Capital Markets","CEO","Managing Director","Head of PBSA"],"allocated":[{"name":"Daniel Harris","company":"Fusion Group","jobTitle":"CIO","matchedIcp":"CIO","fit":"match","status":"Confirmed"},{"name":"John Jacobs","company":"GSA Group","jobTitle":"Executive & Global Head of Capital Markets","matchedIcp":"Global Head Capital Markets","fit":"match","status":"Confirmed"},{"name":"Justin Hamer","company":"Tribera Group","jobTitle":"CEO","matchedIcp":"CEO","fit":"match","status":"Confirmed"},{"name":"Rafael Fernández-Villaverde","company":"Greystar","jobTitle":"MD, Real Estate Private Equity","matchedIcp":"MD RE Private Equity","fit":"match","status":"Confirmed"},{"name":"Vicente Taroncher","company":"Momentum Reim","jobTitle":"Managing Director","matchedIcp":"MD","fit":"match","status":"Confirmed"},{"name":"Zdena Noack","company":"ZEITRAUM","jobTitle":"Co-Owner","matchedIcp":"Co-Owner / developer","fit":"partial","status":"Tentative"}],"notes":"6/6 — target met (5c+1t). Top PBSA panel: GSA, Greystar, Fusion, Tribera, Momentum.","confirmed":5,"tentative":1,"wl":0},{"stream":"Flex & Hybrid","title":"Flex & Hybrid Models - Institutional Product or Local Experiment?","producer":"Victor Tranquilini","type":"Retention","target":6,"wl_target":10,"icp":["CEO","CIO","Head of Flex/Co-Living","Managing Director","Partner"],"allocated":[{"name":"Tobias Reinecke","company":"Unknown","jobTitle":"—","matchedIcp":"CEO / MD","fit":"partial","status":"Confirmed"},{"name":"Philip Grace","company":"Unknown","jobTitle":"—","matchedIcp":"Partner / MD","fit":"partial","status":"Confirmed"},{"name":"Daniel Hermann","company":"Unknown","jobTitle":"—","matchedIcp":"CEO / MD","fit":"partial","status":"Confirmed"}],"notes":"6/6 — target met. ICP detail limited — needs Salesforce data update.","confirmed":6,"tentative":0,"wl":0},{"stream":"Senior Living","title":"Senior Living & Healthcare - The Next Core-Defensive Conviction?","producer":"Victor Tranquilini","type":"Expansion","target":4,"wl_target":30,"icp":["CEO","CIO","Head of Senior Living","Partner","MD Living"],"allocated":[{"name":"Stuart Keith","company":"Unknown","jobTitle":"—","matchedIcp":"CIO / Partner","fit":"partial","status":"Confirmed"},{"name":"Nick Sanderson","company":"Unknown","jobTitle":"CEO","matchedIcp":"CEO","fit":"match","status":"Confirmed"}],"notes":"6/4 — target exceeded (5c+1t). ICP detail limited — needs Salesforce data update.","confirmed":5,"tentative":1,"wl":0},{"stream":"Financing","title":"Financing - Best Assets and Strategies Across the Living Spectrum","producer":"Victor Tranquilini","type":"Retention","target":4,"wl_target":18,"icp":["Partner","Head of RE Lending","CIO Debt","Head of Debt Capital Markets"],"allocated":[{"name":"António Pereira Dias","company":"Havenstone Capital","jobTitle":"Partner","matchedIcp":"Partner / mid-market","fit":"match","status":"Confirmed"},{"name":"Deepesh Thakrar","company":"Unknown","jobTitle":"—","matchedIcp":"Head of RE Lending","fit":"partial","status":"Confirmed"},{"name":"Alfonso Agulló Torres","company":"Unknown","jobTitle":"—","matchedIcp":"Partner / CIO","fit":"partial","status":"Confirmed"},{"name":"Jai Patel","company":"Unknown","jobTitle":"—","matchedIcp":"Partner","fit":"partial","status":"Confirmed"}],"notes":"7/4 — target exceeded. Good Financing pipeline. ICP detail needs Salesforce update.","confirmed":7,"tentative":0,"wl":0},{"stream":"Branded","title":"Branded & Luxury Residences - Where Real Value Meets Assets?","producer":"Victor Tranquilini","type":"Retention","target":4,"wl_target":18,"icp":["CEO","Head of Branded Residences","Partner","Head of Development"],"allocated":[{"name":"Riyan Itani","company":"Global Branded Residences","jobTitle":"Founder","matchedIcp":"Founder / CEO","fit":"match","status":"Confirmed"},{"name":"Ricardo Pucci","company":"Galli Investimentos","jobTitle":"CEO","matchedIcp":"CEO","fit":"match","status":"Tentative"}],"notes":"5/4 — target met (3c+2t). ICP detail limited — needs Salesforce data update.","confirmed":3,"tentative":2,"wl":0}];/*%%SESSIONS_END%%*/
+
+
+const DEADLINE_T1_CLEAN  = new Date('2026-03-20');
+const DEADLINE_TENTATIVE = new Date('2026-04-17');
+const DEADLINE_CONFIRMED = new Date('2026-04-24');
+
+// STATUS HELPERS
+function getStatus(s){const t=s.confirmed+s.tentative;if(!s.target)return 'no-target';if(t===0)return 'no-data';if(t>=s.target)return 'on-track';if(t/s.target>=0.5)return 'at-risk';return 'behind';}
+function getIcpStatus(s){if(!s.allocated.length)return 'empty';const m=s.allocated.filter(a=>a.fit==='match').length;if(m>=s.icp.length)return 'ok';return 'gap';}
+const STATUS_LABELS={'on-track':'Target met','at-risk':'Partial','behind':'Below target','no-data':'No co-chairs','no-target':'No target'};
+const STATUS_COLORS={'on-track':'#1D9E75','at-risk':'#EF9F27','behind':'#E24B4A','no-data':'#b0b0aa','no-target':'#b0b0aa'};
+
+// TAB SWITCHING
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');document.getElementById('tab-'+id).classList.add('active');
+  if(id==='chart') renderChart();
+  if(id==='perf')  renderPerf();
+  if(id==='wl')    renderWLChart();
+  if(id==='accounts') renderAccounts();
+}
+
+// COUNTDOWN (Confirmed Programme Deadline)
+(function(){
+  const deadline=DEADLINE_CONFIRMED;
+  const today=new Date();today.setHours(0,0,0,0);
+  const diff=Math.round((deadline-today)/86400000);
+  const el=document.getElementById('cd-days');
+  if(el) el.textContent=diff>0?diff:0;
+  const start=new Date('2026-01-15');
+  const span=(deadline-start)/86400000;
+  const elapsed=(today-start)/86400000;
+  const fill=document.getElementById('cd-fill');
+  if(fill) fill.style.width=Math.min(100,Math.max(0,Math.round(elapsed/span*100)))+'%';
+  const tentDays=Math.round((DEADLINE_TENTATIVE-today)/86400000);
+  const confDays=Math.round((DEADLINE_CONFIRMED-today)/86400000);
+  const tb=document.getElementById('dl-tent-badge');
+  const cb=document.getElementById('dl-conf-badge');
+  if(tb){tb.textContent=tentDays>0?tentDays+' days':'Past due';tb.className='dl-badge '+(tentDays<=0?'badge-urgent':tentDays<=14?'badge-urgent':'badge-warn');}
+  if(cb){cb.textContent=confDays>0?confDays+' days':'Past due';cb.className='dl-badge '+(confDays<=0?'badge-urgent':confDays<=14?'badge-urgent':'badge-warn');}
+})();
+
+// MD_SESSION_DATA
+/*%%MD_SESSION_DATA_START%%*/const MD_SESSION_DATA = [
+  {title:"BTR Deep-Dive - Real Pan-European Opportunity or Local Fragmentation?",                        stream:"BTR",           conf:7, tent:0, target:6},
+  {title:"Financing - Best Assets and Strategies Across the Living Spectrum",                            stream:"Financing",     conf:7, tent:0, target:4},
+  {title:"Flex & Hybrid Models - Institutional Product or Local Experiment?",                            stream:"Flex & Hybrid", conf:6, tent:0, target:6},
+  {title:"Senior Living & Healthcare - The Next Core-Defensive Conviction?",                             stream:"Senior Living", conf:5, tent:0, target:4},
+  {title:"PBSA Deals - Europe's Star Play, How Much Growth Remains?",                                   stream:"PBSA",          conf:5, tent:1, target:6},
+  {title:"Living Investment Strategies - The Great Core Rotation?",                                      stream:"Openings",      conf:4, tent:0, target:4},
+  {title:"The Great Recalibration - Institutional Capital Appetite Across UK & European Living Markets", stream:"Openings",      conf:5, tent:0, target:4},
+  {title:"Germany Living - From Core Safety to Precision Value Creation?",                               stream:"Countries",     conf:3, tent:2, target:4},
+  {title:"Branded & Luxury Residences - Where Real Value Meets Assets?",                                stream:"Branded",       conf:3, tent:2, target:4},
+  {title:"Value-add, Repurposing & Retrofits - Value Creation Engine or CapEx Trap?",                   stream:"Value-Add",     conf:3, tent:0, target:5},
+];/*%%MD_SESSION_DATA_END%%*/
+
+// PROGRAM CONFIRMATION CHART
+let chartInst=null;
+function renderChart(){
+  if(chartInst) return;
+  const sorted=[...MD_SESSION_DATA].sort((a,b)=>(b.conf+b.tent)-(a.conf+a.tent));
+  const labels=sorted.map(d=>d.title.length>52?d.title.slice(0,50)+'…':d.title);
+  chartInst=new Chart(document.getElementById('pgChart'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Confirmed',data:sorted.map(d=>d.conf),backgroundColor:'#1D9E75',borderRadius:3,stack:'s',barThickness:18},
+      {label:'Tentative',data:sorted.map(d=>d.tent),backgroundColor:'#EF9F27',borderRadius:3,stack:'s',barThickness:18},
+      {label:'Target',   data:sorted.map(d=>d.target),type:'scatter',
+        pointStyle:'line',pointRadius:18,pointBorderWidth:3,
+        pointBorderColor:'#E24B4A',backgroundColor:'transparent',
+        borderColor:'transparent',showLine:false,order:-1},
+    ]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label==='Target'?'Target: '+ctx.raw:ctx.dataset.label+': '+ctx.raw}}},
+      scales:{
+        x:{stacked:true,min:0,ticks:{stepSize:1,font:{size:11},color:'#9b9b97'},grid:{color:'rgba(0,0,0,0.05)'},border:{display:false},title:{display:true,text:'Co-chairs',font:{size:11},color:'#9b9b97'}},
+        y:{stacked:true,ticks:{font:{size:11},color:'#6b6b67'},grid:{display:false},border:{display:false}}
+      }
+    }
+  });
+}
+
+// PERFORMANCE
+/*%%COUNTRY_DATA_START%%*/const COUNTRY_DATA=[
+  {country:"United Kingdom",confirmed:29,tentative:2},
+  {country:"Spain",confirmed:7,tentative:0},
+  {country:"Germany",confirmed:6,tentative:1},
+  {country:"Portugal",confirmed:2,tentative:0},
+  {country:"Czech Republic",confirmed:1,tentative:1},
+  {country:"Netherlands",confirmed:1,tentative:0},
+  {country:"Brazil",confirmed:0,tentative:1},
+  {country:"Sweden",confirmed:1,tentative:0},
+  {country:"Ireland",confirmed:1,tentative:0},
+  {country:"France",confirmed:0,tentative:0},
+  {country:"Italy",confirmed:0,tentative:0},
+  {country:"Luxembourg",confirmed:0,tentative:0},
+  {country:"USA",confirmed:0,tentative:0},
+  {country:"Belgium",confirmed:0,tentative:0},
+  {country:"United Arab Emirates",confirmed:0,tentative:0}
+]/*%%COUNTRY_DATA_END%%*/
+/*%%STAFF_DATA_START%%*/const STAFF_DATA=[
+  {name:"Ludwig Menke",confirmed:8,tentative:1,wl:5,declined:4},
+  {name:"Julia Bearzotti",confirmed:7,tentative:0,wl:0,declined:8},
+  {name:"Mariana Bonucci",confirmed:5,tentative:1,wl:0,declined:6},
+  {name:"Juliana Pires",confirmed:3,tentative:0,wl:2,declined:2},
+  {name:"Victor Heimann",confirmed:2,tentative:1,wl:0,declined:2},
+  {name:"Mariana Pereira",confirmed:1,tentative:0,wl:3,declined:3},
+  {name:"Savio Swaby",confirmed:1,tentative:0,wl:0,declined:6},
+  {name:"Caio Silva",confirmed:1,tentative:0,wl:0,declined:0},
+  {name:"Giulia Lenharo",confirmed:0,tentative:0,wl:0,declined:1},
+  {name:"Loredana Carollo",confirmed:0,tentative:0,wl:0,declined:1},
+  {name:"Laura Sancesario",confirmed:0,tentative:0,wl:3,declined:0},
+  {name:"Adriana Lucchesi",confirmed:0,tentative:0,wl:1,declined:0},
+  {name:"Ana Godoy",confirmed:0,tentative:0,wl:1,declined:0}
+]/*%%STAFF_DATA_END%%*/
+
+let countryChartInst=null;
+function renderPerf(){
+  if(countryChartInst) return;
+  const sorted=[...COUNTRY_DATA].filter(d=>d.confirmed+d.tentative>0).sort((a,b)=>(b.confirmed+b.tentative)-(a.confirmed+a.tentative));
+  const h=Math.max(300,sorted.length*36);
+  const wrap=document.getElementById('countryChartWrap');
+  if(wrap) wrap.style.height=h+'px';
+  countryChartInst=new Chart(document.getElementById('countryChart'),{
+    type:'bar',
+    data:{labels:sorted.map(d=>d.country),datasets:[
+      {label:'Confirmed',data:sorted.map(d=>d.confirmed),backgroundColor:'#1D9E75',borderRadius:4,stack:'s',barThickness:16},
+      {label:'Tentative',data:sorted.map(d=>d.tentative),backgroundColor:'#EF9F27',borderRadius:4,stack:'s',barThickness:16},
+    ]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{stacked:true,min:0,ticks:{stepSize:1,font:{size:11},color:'#9b9b97'},grid:{color:'rgba(0,0,0,0.05)'},border:{display:false}},y:{stacked:true,ticks:{font:{size:11},color:'#6b6b67'},grid:{display:false},border:{display:false}}}}
+  });
+  const maxC=Math.max(...STAFF_DATA.map(s=>s.confirmed),1);
+  document.getElementById('staff-ranking').innerHTML=STAFF_DATA.sort((a,b)=>b.confirmed-a.confirmed).map((s,i)=>`
+    <div class="sr-row">
+      <div class="sr-rank">${i+1}</div>
+      <div class="sr-main">
+        <div class="sr-name-row">
+          <span class="sr-name">${s.name}</span>
+          <div class="sr-badges">
+            ${s.confirmed>0?`<span class="sr-badge sr-conf">${s.confirmed} conf</span>`:''}
+            ${s.tentative>0?`<span class="sr-badge sr-tent">${s.tentative} tent</span>`:''}
+            ${s.wl>0?`<span class="sr-badge sr-wl">${s.wl} WL</span>`:''}
+            ${s.declined>0?`<span class="sr-badge sr-dec">${s.declined} declined</span>`:''}
+          </div>
+        </div>
+        <div class="sr-bar-track">
+          <div class="sr-bar-conf" style="width:${Math.round(s.confirmed/maxC*100)}%"></div>
+          <div class="sr-bar-tent" style="width:${Math.round(s.tentative/maxC*100)}%"></div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// WISHLIST
+/*%%WL_CHART_DATA_START%%*/const WL_CHART_DATA=[
+  {session:"The Great Recalibration - Institutional Capital Appetite Across UK & European Living Markets",Draft:0,Invited:4,Pre_Confirmed:0,Registered:0,Pending:0},
+  {session:"BTR Deep-Dive - Real Pan-European Opportunity or Local Fragmentation?",Draft:0,Invited:0,Pre_Confirmed:0,Registered:2,Pending:0},
+  {session:"PBSA Deals - Europe's Star Play, How Much Growth Remains?",Draft:0,Invited:1,Pre_Confirmed:0,Registered:1,Pending:0},
+  {session:"Branded & Luxury Residences - Where Real Value Meets Assets?",Draft:1,Invited:0,Pre_Confirmed:1,Registered:0,Pending:0},
+  {session:"Senior Living & Healthcare - The Next Core-Defensive Conviction?",Draft:0,Invited:0,Pre_Confirmed:0,Registered:2,Pending:0},
+  {session:"Germany Living - From Core Safety to Precision Value Creation?",Draft:0,Invited:1,Pre_Confirmed:0,Registered:0,Pending:0},
+  {session:"Flex & Hybrid Models - Institutional Product or Local Experiment?",Draft:0,Invited:1,Pre_Confirmed:0,Registered:0,Pending:0},
+  {session:"Financing - Best Assets and Strategies Across the Living Spectrum",Draft:0,Invited:1,Pre_Confirmed:0,Registered:0,Pending:0}
+]/*%%WL_CHART_DATA_END%%*/
+const WL_STATUS_COLORS={'Pending Allocation':'#9B59B6','Draft':'#3498DB','Invited':'#1ABC9C','Pre-Confirmed':'#E91E8C','Registered':'#E74C3C'};
+const WL_KEY_MAP={'Pending':'Pending Allocation','Draft':'Draft','Invited':'Invited','Pre_Confirmed':'Pre-Confirmed','Registered':'Registered'};
+const WL_STATUS_KEYS=['Pending Allocation','Draft','Invited','Pre-Confirmed','Registered'];
+let wlChartInst=null,wlCurrentOwner='';
+function onWLOwnerChange(){wlCurrentOwner=document.getElementById('wl-owner-filter').value;if(wlChartInst){wlChartInst.destroy();wlChartInst=null;}renderWLChart();}
+function renderWLChart(){
+  if(!WL_CHART_DATA.length){
+    document.getElementById('wl-summary').innerHTML='<div style="font-size:13px;color:var(--text3);padding:20px 0">No wishlist data loaded. Upload the WL report via the updater.</div>';
+    return;
+  }
+  if(wlChartInst) return;
+  const chartData=WL_CHART_DATA;
+  const sorted=[...chartData].sort((a,b)=>{
+    const ta=(a.Draft||0)+(a.Invited||0)+(a.Pre_Confirmed||0)+(a.Registered||0)+(a.Pending||0);
+    const tb=(b.Draft||0)+(b.Invited||0)+(b.Pre_Confirmed||0)+(b.Registered||0)+(b.Pending||0);
+    return tb-ta;
+  });
+  const h=Math.max(400,sorted.length*36);
+  const wrap=document.getElementById('wlChartWrap');
+  if(wrap) wrap.style.height=h+'px';
+  const totals={};WL_STATUS_KEYS.forEach(s=>totals[s]=0);
+  sorted.forEach(d=>Object.entries(WL_KEY_MAP).forEach(([k,l])=>{totals[l]=(totals[l]||0)+(d[k]||0);}));
+  const grand=Object.values(totals).reduce((a,b)=>a+b,0);
+  document.getElementById('wl-summary').innerHTML=
+    `<div class="wl-sum-pill"><span class="wl-sum-count">${grand}</span><span class="wl-sum-label">total players</span></div>`+
+    Object.entries(WL_STATUS_COLORS).map(([l,c])=>totals[l]>0?`<div class="wl-sum-pill"><div class="wl-sum-dot" style="background:${c}"></div><span class="wl-sum-count">${totals[l]}</span><span class="wl-sum-label">${l}</span></div>`:'').join('');
+  document.getElementById('wl-legend').innerHTML=Object.entries(WL_STATUS_COLORS).map(([l,c])=>`<div class="wl-leg-item"><div class="wl-leg-dot" style="background:${c}"></div>${l}</div>`).join('');
+  wlChartInst=new Chart(document.getElementById('wlChart'),{
+    type:'bar',
+    data:{labels:sorted.map(d=>d.session.length>60?d.session.slice(0,58)+'…':d.session),
+      datasets:Object.entries(WL_KEY_MAP).map(([k,l])=>({label:l,data:sorted.map(d=>d[k]||0),backgroundColor:WL_STATUS_COLORS[l],borderRadius:3,stack:'s',barThickness:14}))},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>sorted[ctx[0].dataIndex].session,label:ctx=>`${ctx.dataset.label}: ${ctx.raw}`}}},
+      scales:{x:{stacked:true,min:0,ticks:{stepSize:1,font:{size:11},color:'#9b9b97'},grid:{color:'rgba(0,0,0,0.05)'},border:{display:false},title:{display:true,text:'Record Count',font:{size:11},color:'#9b9b97'}},y:{stacked:true,ticks:{font:{size:11},color:'#4a4a47'},grid:{display:false},border:{display:false}}}}
+  });
+}
+
+// KEY ACCOUNTS
+const TARGET_COMPANIES=[
+  {name:"Greystar",person:"Mark Allnutt · Rafael Fernández-Villaverde",member:true},
+  {name:"Heimstaden",person:"Stan Kubacek · Lisa Strohbücker",member:true},
+  {name:"EQT Real Estate",person:"Tom Livelli · Olivier Astruc",member:true},
+  {name:"Kennedy Wilson",person:"Michael Pegler",member:true},
+  {name:"DWS",person:"Ronen Ribak",member:true},
+  {name:"PineBridge Benson Elliot",person:"Joseph De Leo",member:true},
+  {name:"Apache Capital Partners",person:"John Dunkerley",member:true},
+  {name:"Hilltop Credit Partners",person:"Paul Oberschneider",member:true},
+  {name:"Barings Real Estate",person:"Rob Fairfax",member:true},
+  {name:"Fusion Group",person:"Daniel Harris",member:true},
+  {name:"GSA Group",person:"John Jacobs",member:true},
+  {name:"Tribera Group",person:"Justin Hamer",member:true},
+  {name:"Momentum Reim",person:"Vicente Taroncher",member:true},
+  {name:"ZEITRAUM",person:"Zdena Noack",member:true},
+  {name:"Ho Bee Land",person:"Federico Bianchi",member:true},
+  {name:"True North Management",person:"Jill Xiaozhou Ju",member:true},
+  {name:"DFI",person:"Paul Nearchou",member:true},
+  {name:"re:shape",person:"Dan Lutterodt",member:true},
+  {name:"Henderson Park",person:"Ioanna Paschalidou (mod.)",member:true},
+  {name:"Periskop Partners",person:"Lars Meisinger",member:true},
+  {name:"ZAR Real Estate",person:"Marco Zarges",member:true},
+  {name:"4 MORE Capital",person:"Patrick Pfeiffer",member:true},
+  {name:"Havenstone Capital",person:"António Pereira Dias",member:true},
+  {name:"Global Branded Residences",person:"Riyan Itani",member:true},
+  {name:"Galli Investimentos",person:"Ricardo Pucci",member:false},
+  {name:"PATRIZIA",member:false},{name:"Round Hill Capital",member:false},
+  {name:"Nuveen Real Estate",member:false},{name:"M&G Real Estate",member:false},
+  {name:"Invesco Real Estate",member:false},{name:"CBRE Investment Management",member:false},
+  {name:"Tristan Capital",member:false},{name:"LaSalle Investment Management",member:false},
+  {name:"Ares Management",member:false},{name:"ICG Real Estate",member:false},
+];
+function renderAccounts(){
+  const inP=TARGET_COMPANIES.filter(c=>c.person);
+  const outP=TARGET_COMPANIES.filter(c=>!c.person);
+  let html='<div class="comp-col"><h3 class="in">✓ In the program ('+inP.length+')</h3>';
+  inP.forEach(c=>{html+=`<div class="crow"><div class="cdot in"></div><div class="cname">${c.name} <span class="cmember ${c.member?'yes':'no'}">${c.member?'member':'non-member'}</span></div><div class="cperson">${c.person}</div></div>`;});
+  html+='</div><div class="comp-col"><h3 class="out">✗ Not yet in program ('+outP.length+')</h3>';
+  outP.forEach(c=>{html+=`<div class="crow"><div class="cdot out"></div><div class="cname">${c.name} <span class="cmember ${c.member?'yes':'no'}">${c.member?'member':'non-member'}</span></div></div>`;});
+  html+='</div>';
+  document.getElementById('comp-grid').innerHTML=html;
+}
+
+// ICP ANALYSIS
+function render(){
+  const fStream=document.getElementById('f-stream').value;
+  const fIcp=document.getElementById('f-icp').value;
+  const fStatus=document.getElementById('f-status').value;
+  // Only show sessions with co-chairs allocated
+  let sessions=SESSIONS.filter(s=>s.confirmed+s.tentative>0);
+  if(fStream) sessions=sessions.filter(s=>s.stream===fStream);
+  if(fIcp)    sessions=sessions.filter(s=>getIcpStatus(s)===fIcp);
+  if(fStatus) sessions=sessions.filter(s=>getStatus(s)===fStatus);
+  document.getElementById('count').textContent=sessions.length+' sessions';
+  if(!sessions.length){document.getElementById('body').innerHTML='<div style="text-align:center;padding:40px;color:#9b9b97">No sessions found.</div>';return;}
+  const streams=[...new Set(sessions.map(s=>s.stream))];
+  let html='';
+  streams.forEach(stream=>{
+    html+=`<div class="sh">${stream}</div>`;
+    sessions.filter(s=>s.stream===stream).forEach(s=>{html+=renderCard(s);});
+  });
+  document.getElementById('body').innerHTML=html;
+  document.querySelectorAll('.stop').forEach(el=>{
+    el.addEventListener('click',()=>{
+      const sec=document.getElementById('icp-'+el.dataset.id);
+      const ch=el.querySelector('.chevron');
+      if(sec){sec.classList.toggle('open');ch.classList.toggle('open');}
+    });
+  });
+}
+
+let cid=0;
+function renderCard(s){
+  const id=cid++;
+  const total=s.confirmed+s.tentative;
+  const st=getStatus(s);
+  const pct=s.target?Math.min(100,Math.round(total/s.target*100)):0;
+  const col=STATUS_COLORS[st];
+  const pills=total===0?'<span class="pill pn">None allocated</span>':
+    (s.confirmed>0?`<span class="pill pc">${s.confirmed} confirmed</span>`:'')+
+    (s.tentative>0?`<span class="pill pt">${s.tentative} tentative</span>`:'');
+  const tgtHtml=s.target?`<div class="stgt">${total} / ${s.target} · ${pct}%</div><div class="sbar"><div class="sbarfill" style="width:${pct}%;background:${col}"></div></div>`:'<div class="stgt" style="color:#b0b0aa">No target</div>';
+  const wlHtml=`<div class="wl-section"><div class="wl-header"><span class="wl-title">Wishlist</span><span class="wl-total low">0 players</span></div><span class="wl-none">Upload WL report via updater</span></div>`;
+  let icpHtml='<div class="icp-legend">'+
+    '<div class="li"><div class="ldot" style="background:#1D9E75"></div>Profile covered</div>'+
+    '<div class="li"><div class="ldot" style="background:#EF9F27"></div>Partially covered</div>'+
+    '<div class="li"><div class="ldot" style="background:#E24B4A"></div>Profile missing</div>'+
+    '</div><div class="icp-grid">';
+  icpHtml+='<div class="icp-col"><h4>ICPs Covered</h4>';
+  if(!s.allocated.length){icpHtml+='<div style="font-size:12px;color:#9b9b97;font-style:italic">No co-chairs allocated.</div>';}
+  else{s.allocated.forEach(a=>{icpHtml+=`<div class="pr"><div class="pdot ${a.fit==='match'?'matched':'partial'}"></div><div class="pinfo"><div class="ptitle">${a.matchedIcp}</div><div class="pdetail">${a.jobTitle}</div><span class="pperson">${a.name} · ${a.company}</span></div></div>`;});}
+  icpHtml+='</div><div class="icp-col"><h4>ICPs Missing</h4>';
+  let miss=0;
+  s.icp.forEach(icp=>{
+    const covered=s.allocated.some(a=>{
+      const ai=a.matchedIcp.toLowerCase(),ii=icp.toLowerCase();
+      const aiW=ai.split(/[\s/,&\-]+/).filter(w=>w.length>1);
+      const iiW=ii.split(/[\s/,&\-]+/).filter(w=>w.length>1);
+      return iiW.some(w=>aiW.some(aw=>aw.includes(w)||w.includes(aw)));
+    });
+    if(!covered){miss++;icpHtml+=`<div class="pr"><div class="pdot missing"></div><div class="pinfo"><div class="ptitle">${icp}</div></div></div>`;}
+  });
+  if(!miss) icpHtml+='<div style="font-size:12px;color:#1D9E75">All priority ICPs covered ✓</div>';
+  icpHtml+='</div></div>';
+  if(s.notes) icpHtml+=`<div class="icpnote">💡 ${s.notes}</div>`;
+  return `<div class="scard ${st}"><div class="stop" data-id="${id}"><div><div class="stitle">${s.title}</div><div class="spills">${pills}</div></div><div class="sright"><div style="display:flex;align-items:center;gap:6px"><span class="stotal">${total}</span><span class="stag ${st}">${STATUS_LABELS[st]}</span><span class="chevron">▼</span></div>${tgtHtml}</div></div>${wlHtml}<div class="icp-section" id="icp-${id}">${icpHtml}</div></div>`;
+}
+
+// INIT
+const streamsArr=[...new Set(SESSIONS.filter(s=>s.confirmed+s.tentative>0).map(s=>s.stream))];
+const selStream=document.getElementById('f-stream');
+streamsArr.forEach(st=>{const o=document.createElement('option');o.value=st;o.textContent=st;selStream.appendChild(o);});
+document.getElementById('footer-date').textContent='Generated on '+new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date());
+render();
+</script>
+</body>
+</html>
