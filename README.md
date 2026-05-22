@@ -1,0 +1,1 @@
+# gri-living-assets-europe-2026
